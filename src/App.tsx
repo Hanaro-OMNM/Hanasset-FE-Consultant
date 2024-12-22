@@ -36,7 +36,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Consultant />} />
-            <Route path="/live-chat" element={<ChatApp accessor="guest" />} />
+            {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
             <Route
               path="/chat-history/:id"
               element={<ChatHistory accessor="guest" />}

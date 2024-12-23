@@ -119,6 +119,7 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
         content: inputMessage,
         createdAt: new Date().toISOString(),
       };
+      console.log(message);
       stompClient.publish({
         destination: `/app/chat.sendMessage/${chatroomId}`,
         body: JSON.stringify(message),

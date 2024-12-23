@@ -1,10 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
-import { CurrentLocation } from '../types/hanaAssetRequest.common.ts';
 import {
   ChatMessage,
-  ChatRoom,
   CurrentChatRooms,
-  CurrentMarkers,
 } from '../types/hanaAssetResponse.common.ts';
 
 export class PlatformAPI {

@@ -1,6 +1,9 @@
 import { HiBell } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import React from 'react';
+import { PlatformAPI } from '../../platform/PlatformAPI';
+import { activeChatRoomState } from '../../recoil/chat/atom';
 
 type ChatHeaderProps = {
   responserName: string;
@@ -12,6 +15,36 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   responserImage,
 }) => {
   const navigate = useNavigate();
+  const [chatroom, setChatroom] = useRecoilState(activeChatRoomState);
+
+  const handleEndConsultation = async () => {
+    try {
+      if (!chatroom) {
+        console.error('Chatroom is not set.');
+        alert('Chatroom ID is missing. Cannot end consultation.');
+        return;
+      }
+
+      console.log(
+        `Ending consultation for chatroomId: ${chatroom?.chatroomId}`
+      );
+
+      if (chatroom && chatroom.chatroomId) {
+        const response = await PlatformAPI.putChatroomStatus(
+          chatroom.chatroomId,
+          'active'
+        );
+        console.log('Chatroom status updated to active:', response);
+      }
+
+      // 상담 종료 후 chatroom 상태 비우기
+      setChatroom(null); // chatroom을 null로 설정하여 리코일 상태 초기화
+    } catch (error) {
+      console.error('Failed to end consultation:', error);
+      alert('Failed to end consultation. Please try again.');
+    }
+  };
+
   return (
     <div className="w-full p-3 bg-white justify-center">
       <div className="flex justify-between items-center">
@@ -30,7 +63,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center">
           <button
             className="px-2 py-1 text-xs text-white bg-hanaRed80 rounded hover:bg-hanaRed transition duration-150 ease-in-out"
-            onClick={() => navigate('/Consulting')}
+            onClick={handleEndConsultation} // 버튼 클릭 시 종료 로직 실행
           >
             상담 종료
           </button>

@@ -17,14 +17,12 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>(
     initialExpandedState
   );
-
   const [currentRooms, setCurrentRooms] = useState<{
     [key: string]: ChatRoom[];
   } | null>(null);
-
-  const [activeRooms, setActiveRooms] = useState<ChatRoom[]>([]);
   const [activeChatRoom, setActiveChatRoom] =
-    useRecoilState(activeChatRoomState);
+    useRecoilState(activeChatRoomState); // 상태를 하나의 상담으로 설정
+
   useEffect(() => {
     const fetchConsultationData = async () => {
       try {
@@ -35,7 +33,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
 
         // Group waiting rooms by 30-minute intervals
         const groupedData = groupChatRoomsByTimeInterval(
-          waitingRooms.result.chatroomResponse.filter(
+          waitingRooms.result.chatrooms.filter(
             (room) => room.chatroomStatus !== 'active'
           ),
           30
@@ -102,16 +100,14 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
       );
       console.log('Updated room:', updatedRoom);
       alert(
-        `Chatroom "${updatedRoom.result.chatroomResponse[0].chatroomTitle}" status updated successfully!`
+        `Chatroom "${updatedRoom.result.chatrooms[0].chatroomTitle}" status updated successfully!`
       );
 
-      // Recoil 상태 업데이트
-      const room = updatedRoom.result.chatroomResponse[0];
+      // Recoil 상태 업데이트 (하나의 상담만 활성화됨)
+      const room = updatedRoom.result.chatrooms[0];
       setActiveChatRoom(room); // 활성화된 상담을 Recoil 상태로 설정
 
       // Local State 업데이트
-      setActiveRooms([room]);
-
       setCurrentRooms((prev) => {
         if (!prev) return prev;
         const updatedRooms = { ...prev };
@@ -133,15 +129,10 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
       {/* 상담중 섹션 */}
       <h2 className="text-lg font-bold mt-4">상담중</h2>
       <hr className="border-t border-gray-300 my-2" />
-      {activeRooms && activeRooms.length > 0 ? (
-        activeRooms.map((room, index) => (
-          <p
-            key={index}
-            className="text-sm mb-1 cursor-pointer hover:text-blue-600"
-          >
-            {room.chatroomTitle}
-          </p>
-        ))
+      {activeChatRoom ? (
+        <p className="text-sm mb-1 cursor-pointer hover:text-blue-600">
+          {activeChatRoom.chatroomTitle}
+        </p>
       ) : (
         <p className="text-sm mb-1">현재 진행 중인 상담이 없습니다.</p>
       )}

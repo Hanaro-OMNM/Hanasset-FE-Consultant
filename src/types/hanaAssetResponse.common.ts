@@ -1,37 +1,3 @@
-//src/types/hanaAssetResponse.common.ts
-
-export interface CurrentMarkers {
-  message: string;
-  result: {
-    currentMarkers: {
-      cityName: string;
-      cortarNo: number;
-      emdName: string;
-      sigunguName: string;
-    };
-    markerInfos: markerInfos[];
-  };
-}
-export interface markerInfos {
-  centerLat: number;
-  centerLng: number;
-  cortarNoCode: number;
-  name: string;
-}
-
-export interface CurrentMarkers {
-  message: string;
-  result: {
-    currentMarkers: {
-      cityName: string;
-      cortarNo: number;
-      emdName: string;
-      sigunguName: string;
-    };
-    markerInfos: markerInfos[];
-  };
-}
-
 //채팅 메세지 Response
 export interface ChatMessage {
   messageType: 'JOIN' | 'TALK';
@@ -58,7 +24,7 @@ export interface ChatRoom {
 export interface CurrentMessages {
   message: string;
   result: {
-    chatMessageResponse: ChatMessage[];
+    chatMessages: ChatMessage[];
   };
 }
 
@@ -66,6 +32,6 @@ export interface CurrentMessages {
 export interface CurrentChatRooms {
   message: string;
   result: {
-    chatroomResponse: ChatRoom[];
+    chatrooms: ChatRoom[];
   };
 }

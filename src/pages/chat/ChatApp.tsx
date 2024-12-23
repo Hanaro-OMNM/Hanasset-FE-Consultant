@@ -1,4 +1,6 @@
+import { Client, Message, StompSubscription } from '@stomp/stompjs';
 import { PiPaperPlaneRightFill } from 'react-icons/pi';
+import SockJS from 'sockjs-client';
 import React, { useState, useEffect, useRef } from 'react';
 import logo from '../../assets/img/logo.png';
 import profile from '../../assets/img/profile_ex.jpg';
@@ -11,30 +13,21 @@ type ChatMessageType = {
   user: 'guest' | 'consultant';
   subject: 'sender' | 'responser';
   message: string;
-  time: string; // 각 메시지의 시간을 저장
+  time: string;
 };
 
-type ChatAppProps = {
-  accessor: 'guest' | 'consultant';
-};
+interface ChatAppProps {
+  accessor: 'guest' | 'consultant'; // 사용자 역할
+  chatroomId: string; // 채팅방 ID
+}
 
-const ChatApp: React.FC<ChatAppProps> = ({ accessor }) => {
-  const getCurrentTime = () => {
-    const date = new Date();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
-
-  const [messages, setMessages] = useState<ChatMessageType[]>([
-    {
-      id: 1,
-      user: 'consultant',
-      subject: 'responser',
-      message: '안녕하세요, 상담사 땡땡땡 입니다. 무엇을 도와드릴까요?',
-      time: getCurrentTime(),
-    },
-  ]);
+const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [stompClient, setStompClient] = useState<Client | null>(null);
+  const [subscription, setSubscription] = useState<StompSubscription | null>(
+    null
+  );
+  const [messages, setMessages] = useState<ChatMessageType[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,40 +39,103 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor }) => {
     scrollToBottom();
   }, [messages]);
 
-  const [inputValue, setInputValue] = useState('');
-  const [lastMessageTime, setLastMessageTime] = useState<string | null>(null);
+  const getCurrentTime = () => {
+    const date = new Date();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
 
-  const handleSendMessage = () => {
-    if (inputValue.trim() === '') return;
+  useEffect(() => {
+    const socket = new SockJS('http://localhost:8080/ws-chat'); // 백엔드 서버 URL
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+    });
 
-    console.log(lastMessageTime); //오류방지용 임시 console.log 출력
+    client.onConnect = () => {
+      console.log(`[${accessor}] Connected to WebSocket`);
 
-    const currentTime = getCurrentTime();
+      // Redis에서 채팅 기록 요청
+      client.publish({
+        destination: `/app/chat.history/${chatroomId}`,
+      });
 
-    const newMessage: ChatMessageType = {
-      id: messages.length + 1,
-      user: 'guest',
-      subject: 'sender',
-      message: inputValue,
-      time: currentTime,
+      // Redis에서 메시지 기록 및 실시간 메시지 처리
+      const sub = client.subscribe(
+        `/topic/rooms/${chatroomId}`,
+        (message: Message) => {
+          const newData = JSON.parse(message.body);
+
+          if (Array.isArray(newData)) {
+            // Redis에서 가져온 기록 메시지 (index 1부터 읽음)
+            const loadedMessages = newData.slice(1).map((msg, index) => ({
+              id: index + 2, // 초기 메시지 이후로 ID 설정
+              user: msg.accessor === 'consultant' ? 'consultant' : 'guest',
+              subject: msg.accessor === 'consultant' ? 'sender' : 'responser',
+              message: msg.content,
+              time: msg.createdAt
+                ? new Date(msg.createdAt).toLocaleTimeString()
+                : getCurrentTime(),
+            }));
+
+            // 기존 메시지 초기화 후 새로운 기록 추가
+            setMessages(loadedMessages);
+          } else {
+            // 실시간 메시지 처리
+            const newMessage: ChatMessageType = {
+              id: messages.length + 1,
+              user: newData.accessor === 'consultant' ? 'consultant' : 'guest',
+              subject:
+                newData.accessor === 'consultant' ? 'sender' : 'responser',
+              message: newData.content,
+              time: getCurrentTime(),
+            };
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+          }
+        }
+      );
+
+      setSubscription(sub);
     };
 
-    setMessages([...messages, newMessage]);
-    setInputValue('');
-    setLastMessageTime(currentTime); // 마지막 메시지 시간을 업데이트
+    client.activate();
+    setStompClient(client);
 
-    setTimeout(() => {
-      const responserReply: ChatMessageType = {
-        id: messages.length + 2,
-        user: 'consultant',
-        subject: 'responser',
-        message:
-          '알겠습니다. 고객님의 매출과 대출 상품 리스트를 확인하였습니다. 상담은 선택된 매물 중 첫번째 매물부터 시작됩니다.',
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      if (subscription) subscription.unsubscribe();
+      client.deactivate();
+    };
+  }, [chatroomId, accessor]);
+
+  const handleSendMessage = () => {
+    if (stompClient && inputMessage.trim() !== '') {
+      const message = {
+        messageType: 'TALK',
+        chatroomId: chatroomId,
+        senderId: 2,
+        accessor: accessor,
+        content: inputMessage,
+        createdAt: new Date().toISOString(),
+      };
+      console.log(message);
+      stompClient.publish({
+        destination: `/app/chat.sendMessage/${chatroomId}`,
+        body: JSON.stringify(message),
+      });
+
+      const newMessage: ChatMessageType = {
+        id: messages.length + 1,
+        user: accessor === 'consultant' ? 'consultant' : 'guest',
+        subject: 'sender',
+        message: inputMessage,
         time: getCurrentTime(),
       };
-      setMessages((prevMessages) => [...prevMessages, responserReply]);
-      setLastMessageTime(responserReply.time);
-    }, 1000);
+
+      //setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setInputMessage('');
+    }
   };
 
   return (
@@ -112,8 +168,8 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor }) => {
               <div className="flex w-full p-5 bg-hanaGreen60">
                 <input
                   type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   className="flex-1 px-4 rounded-full text-sm border-2 focus:border-hanaGreen80 focus:outline-none"
                   placeholder="메세지를 입력해주세요..."
@@ -151,8 +207,8 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor }) => {
             <div className="flex w-full p-5 bg-hanaGreen60">
               <input
                 type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 className="flex-1 px-4 rounded-full text-sm border-2 focus:border-hanaGreen80 focus:outline-none"
                 placeholder="메세지를 입력해주세요..."

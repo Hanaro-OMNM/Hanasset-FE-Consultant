@@ -4,7 +4,6 @@ about: Describe this issue template's purpose here.
 title: 이슈 제목은 반드시 영어로!!!!
 labels: ''
 assignees: ''
-
 ---
 
 ## Description

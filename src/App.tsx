@@ -1,31 +1,23 @@
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
-import { useState, useEffect } from 'react';
+import { RecoilRoot, useRecoilState } from 'recoil';
+import { useEffect } from 'react';
 import './App.css';
 import Layout from './components/template/Layout.tsx';
+import LoginPage from './pages/Login/login.tsx';
 import ChatApp from './pages/chat/ChatApp.tsx';
 import ChatHistory from './pages/chat/ChatHistory.tsx';
 import Consultant from './pages/consultant/Consultant.tsx';
-import { CookieUtils } from './utils/CookieUtils.ts';
+import isLoginAtom from './recoil/isLogin';
 
-function App() {
-  const isLogin = CookieUtils.getCookieValue('connect.sid');
+function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isLogin] = useRecoilState(isLoginAtom);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-
-    if (code) {
-      CookieUtils.setCookie('connect.sid', 'temporary-session-id', 1);
-      setIsLoginModalOpen(false);
-    } else if (
-      !isLogin &&
-      !['/', '/home', '/real-estate-list'].includes(location.pathname)
-    ) {
-      setIsLoginModalOpen(true);
+    if (!isLogin) {
+      navigate('/login');
+    } else {
       navigate('/');
     }
   }, [isLogin, location.pathname, navigate]);
@@ -36,6 +28,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Consultant />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/live-chat" element={<ChatApp accessor="guest" />} />
             <Route
               path="/chat-history/:id"
@@ -45,6 +38,14 @@ function App() {
         </Layout>
       </RecoilRoot>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <RecoilRoot>
+      <AppContent />
+    </RecoilRoot>
   );
 }
 

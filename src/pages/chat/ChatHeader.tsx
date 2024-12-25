@@ -1,6 +1,8 @@
 import { HiBell } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import React from 'react';
+import isLoginAtom from '../../recoil/isLogin';
 
 type ChatHeaderProps = {
   responserName: string;
@@ -12,6 +14,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   responserImage,
 }) => {
   const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useRecoilState<boolean>(isLoginAtom);
   return (
     <div className="w-full p-3 bg-white justify-center">
       <div className="flex justify-between items-center">
@@ -30,7 +33,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center">
           <button
             className="px-2 py-1 text-xs text-white bg-hanaRed80 rounded hover:bg-hanaRed transition duration-150 ease-in-out"
-            onClick={() => navigate('/Consulting')}
+            onClick={() => {
+              if (isLogin) {
+                setIsLogin(false);
+              }
+              localStorage.removeItem('accessToken');
+              navigate('/login');
+            }}
           >
             상담 종료
           </button>

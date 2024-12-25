@@ -44,7 +44,11 @@ export default function ConsultantLogin() {
                 Asset
               </div>
             </div>
-            <img src={hanaCheerUp} className="mt-4 w-32 h-32" />
+            <img
+              alt="상담사 로그인 로고"
+              src={hanaCheerUp}
+              className="mt-4 w-32 h-32"
+            />
           </div>
 
           <h2 className="text-center text-xl text-gray-700 mb-4">

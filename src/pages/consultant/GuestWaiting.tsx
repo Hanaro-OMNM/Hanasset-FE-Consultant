@@ -1,9 +1,11 @@
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
 import { consultationData, initialExpandedState } from '../../assets/Dummy';
 import { PlatformAPI } from '../../platform/PlatformAPI';
 import { activeChatRoomState } from '../../recoil/chat/atom';
+import isLoginAtom from '../../recoil/isLogin';
 import {
   ChatRoom,
   CurrentWaitingRooms,
@@ -23,6 +25,8 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
   } | null>(null);
   const [activeChatRoom, setActiveChatRoom] =
     useRecoilState(activeChatRoomState); // 상태를 하나의 상담으로 설정
+  const [isLogin, setIsLogin] = useRecoilState<boolean>(isLoginAtom);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchConsultationData = async () => {
@@ -152,7 +156,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
   };
 
   return (
-    <div className="w-[300px] min-h-screen bg-gray-100 p-6">
+    <div className="w-[300px] min-h-screen bg-gray-100 p-6 relative">
       {/* 상담중 섹션 */}
       <h2 className="text-lg font-bold mt-4">상담중</h2>
       <hr className="border-t border-gray-300 my-2" />
@@ -203,6 +207,20 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
           )}
         </div>
       ))}
+
+      {/* 푸터 섹션 */}
+      <footer className="absolute bottom-3 left-1/2 transform -translate-x-1/2">
+        <button
+          onClick={() => {
+            localStorage.removeItem('accessToken');
+            setIsLogin(false);
+            navigate('/login');
+          }}
+          className="rounded bg-red-500 text-white py-1 px-2 hover:bg-red-600"
+        >
+          로그아웃
+        </button>
+      </footer>
     </div>
   );
 }

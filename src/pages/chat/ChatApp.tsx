@@ -19,9 +19,14 @@ type ChatMessageType = {
 interface ChatAppProps {
   accessor: 'guest' | 'consultant'; // 사용자 역할
   chatroomId: string; // 채팅방 ID
+  consultantId: number;
 }
 
-const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
+const ChatApp: React.FC<ChatAppProps> = ({
+  accessor,
+  chatroomId,
+  consultantId,
+}) => {
   const [inputMessage, setInputMessage] = useState<string>('');
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [subscription, setSubscription] = useState<StompSubscription | null>(
@@ -51,6 +56,9 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
+      connectHeaders: {
+        Authorization: `Bearer ${window.localStorage.getItem('accessToken')}`,
+      },
     });
 
     client.onConnect = () => {
@@ -59,6 +67,9 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
       // Redis에서 채팅 기록 요청
       client.publish({
         destination: `/app/chat.history/${chatroomId}`,
+        headers: {
+          Authorization: `Bearer ${window.localStorage.getItem('accessToken')}`,
+        },
       });
 
       // Redis에서 메시지 기록 및 실시간 메시지 처리
@@ -114,7 +125,7 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
       const message = {
         messageType: 'TALK',
         chatroomId: chatroomId,
-        senderId: 2,
+        senderId: consultantId,
         accessor: accessor,
         content: inputMessage,
         createdAt: new Date().toISOString(),
@@ -123,6 +134,9 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor, chatroomId }) => {
       stompClient.publish({
         destination: `/app/chat.sendMessage/${chatroomId}`,
         body: JSON.stringify(message),
+        headers: {
+          Authorization: `Bearer ${window.localStorage.getItem('accessToken')}`,
+        },
       });
 
       const newMessage: ChatMessageType = {

@@ -11,16 +11,17 @@ export default function Consultant() {
     <div className="flex justify-center">
       {/* 상담 예약 */}
       <div>
-        <GuestWaiting consultantId={2} />
+        <GuestWaiting
+          consultantId={activeChatRoom?.chatroom.consultantId || 0}
+        />
       </div>
 
       {/* 채팅 */}
       <div className="w-screen">
         <ChatApp
           accessor="consultant"
-          chatroomId={
-            activeChatRoom?.chatroomId || '06774186-6343-476e-b5c5-49b21c085f74'
-          }
+          chatroomId={activeChatRoom?.chatroom.chatroomId || ''}
+          consultantId={activeChatRoom?.chatroom.consultantId || 0}
         />
       </div>
 

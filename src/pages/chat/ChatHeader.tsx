@@ -14,7 +14,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   responserName,
   responserImage,
 }) => {
-  const navigate = useNavigate();
   const [chatroom, setChatroom] = useRecoilState(activeChatRoomState);
 
   const handleEndConsultation = async () => {
@@ -32,7 +31,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       if (chatroom && chatroom.chatroom.chatroomId) {
         const response = await PlatformAPI.putChatroomStatus(
           chatroom.chatroom.chatroomId,
-          'inactive' // Assuming you want to change status to 'inactive' when ending consultation
+          'active' // Assuming you want to change status to 'inactive' when ending consultation
         );
         console.log('Chatroom status updated to inactive:', response);
       }
@@ -79,3 +78,5 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 };
 
 export default ChatHeader;
+
+//로그아웃

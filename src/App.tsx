@@ -1,34 +1,40 @@
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
-import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import { RecoilRoot, useRecoilState } from 'recoil';
+import { useEffect } from 'react';
 import './App.css';
 import Layout from './components/template/Layout.tsx';
-import ChatApp from './pages/chat/ChatApp.tsx';
+import LoginPage from './pages/Login/login.tsx';
 import ChatHistory from './pages/chat/ChatHistory.tsx';
 import Consultant from './pages/consultant/Consultant.tsx';
-import { CookieUtils } from './utils/CookieUtils.ts';
+import isLoginAtom from './recoil/isLogin';
 
-function App() {
-  const isLogin = CookieUtils.getCookieValue('connect.sid');
-  const location = useLocation();
+function AppContent() {
   const navigate = useNavigate();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isLogin, setIsLogin] = useRecoilState(isLoginAtom);
+
+  const isTokenExpired = (token: string) => {
+    try {
+      const decoded = jwtDecode(token); // 토큰 디코딩
+      const currentTime = Math.floor(Date.now() / 1000);
+      return decoded.exp! < currentTime; // 만료 여부 확인
+    } catch (error) {
+      console.error('Invalid token', error);
+      return true;
+    }
+  };
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-
-    if (code) {
-      CookieUtils.setCookie('connect.sid', 'temporary-session-id', 1);
-      setIsLoginModalOpen(false);
-    } else if (
-      !isLogin &&
-      !['/', '/home', '/real-estate-list'].includes(location.pathname)
-    ) {
-      setIsLoginModalOpen(true);
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken || (accessToken && isTokenExpired(accessToken))) {
+      setIsLogin(false);
+    }
+    if (!isLogin) {
+      navigate('/login');
+    } else {
       navigate('/');
     }
-  }, [isLogin, location.pathname, navigate]);
+  }, [isLogin]);
 
   return (
     <div className="App">
@@ -37,6 +43,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Consultant />} />
             {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
+            <Route path="/login" element={<LoginPage />} />
             <Route
               path="/chat-history/:id"
               element={<ChatHistory accessor="guest" />}
@@ -45,6 +52,14 @@ function App() {
         </Layout>
       </RecoilRoot>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <RecoilRoot>
+      <AppContent />
+    </RecoilRoot>
   );
 }
 

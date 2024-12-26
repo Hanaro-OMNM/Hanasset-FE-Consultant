@@ -6,7 +6,8 @@ import { PlatformAPI } from '../../platform/PlatformAPI';
 import { activeChatRoomState } from '../../recoil/chat/atom';
 import {
   ChatRoom,
-  CurrentChatRooms,
+  CurrentWaitingRooms,
+  WaitingRoom,
 } from '../../types/hanaAssetResponse.common';
 
 interface GuestWaitingProps {
@@ -18,7 +19,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
     initialExpandedState
   );
   const [currentRooms, setCurrentRooms] = useState<{
-    [key: string]: ChatRoom[];
+    [key: string]: WaitingRoom[];
   } | null>(null);
   const [activeChatRoom, setActiveChatRoom] =
     useRecoilState(activeChatRoomState); // 상태를 하나의 상담으로 설정
@@ -26,15 +27,14 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
   useEffect(() => {
     const fetchConsultationData = async () => {
       try {
-        const waitingRooms: CurrentChatRooms =
+        const waitingRooms: CurrentWaitingRooms =
           await PlatformAPI.getWaitingRoomsInfo(consultantId);
 
         console.log(waitingRooms);
-
         // Group waiting rooms by 30-minute intervals
         const groupedData = groupChatRoomsByTimeInterval(
           waitingRooms.result.chatrooms.filter(
-            (room) => room.chatroomStatus !== 'active'
+            (room) => room.chatroom && room.chatroom.chatroomStatus !== 'active' // Check for valid `chatroom` and status
           ),
           30
         );
@@ -62,23 +62,42 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
   }, [consultantId]);
 
   const groupChatRoomsByTimeInterval = (
-    chatRooms: ChatRoom[],
+    waitingRooms: WaitingRoom[],
     intervalMinutes: number = 30
-  ): { [key: string]: ChatRoom[] } => {
-    return chatRooms.reduce(
+  ): { [key: string]: WaitingRoom[] } => {
+    return waitingRooms.reduce(
       (acc, room) => {
-        const [hour, minute] = room.reservedTime
-          .split(' ')[1]
-          .split(':')
-          .map(Number); // Extract hour and minute as numbers
-        const adjustedMinute = minute < intervalMinutes ? '00' : '30'; // Round to the nearest interval
-        const timeSlot = `${String(hour).padStart(2, '0')}:${adjustedMinute}`; // Format as 'HH:MM'
+        const chatroom = room.chatroom;
 
-        if (!acc[timeSlot]) acc[timeSlot] = [];
-        acc[timeSlot].push(room);
+        // 유효성 검사: reservedTime이 null 또는 undefined인지 확인
+        if (!chatroom || !chatroom.reservedTime) {
+          console.warn('Invalid chatroom:', room);
+          return acc; // Skip to the next
+        }
+
+        try {
+          // Extract hour and minute as numbers
+          const [hour, minute] = chatroom.reservedTime
+            .split(' ')[1]
+            .split(':')
+            .map(Number);
+
+          // Round to the nearest interval
+          const adjustedMinute = minute < intervalMinutes ? '00' : '30';
+
+          // Format as 'HH:MM'
+          const timeSlot = `${String(hour).padStart(2, '0')}:${adjustedMinute}`;
+
+          // Add room to the correct time slot
+          if (!acc[timeSlot]) acc[timeSlot] = [];
+          acc[timeSlot].push(room);
+        } catch (error) {
+          console.error('Error processing chatroom:', room, error);
+        }
+
         return acc;
       },
-      {} as { [key: string]: ChatRoom[] }
+      {} as { [key: string]: WaitingRoom[] }
     );
   };
 
@@ -91,9 +110,11 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
 
   const handleChatroomStatusUpdate = async (
     chatroomId: string,
-    chatroomStatus: string
+    chatroomStatus: string,
+    userName: string // Add userName parameter
   ) => {
     try {
+      // Update chatroom status through the API
       const updatedRoom = await PlatformAPI.putChatroomStatus(
         chatroomId,
         chatroomStatus
@@ -103,17 +124,23 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
         `Chatroom "${updatedRoom.result.chatrooms[0].chatroomTitle}" status updated successfully!`
       );
 
-      // Recoil 상태 업데이트 (하나의 상담만 활성화됨)
+      // Extract room from the response
       const room = updatedRoom.result.chatrooms[0];
-      setActiveChatRoom(room); // 활성화된 상담을 Recoil 상태로 설정
 
-      // Local State 업데이트
+      // Recoil 상태 업데이트 (하나의 상담만 활성화됨)
+      setActiveChatRoom((prev) => ({
+        ...prev, // Spread previous state to retain other properties
+        chatroom: room, // Update the chatroom property
+        userName: userName, // Update the userName property
+      }));
+
+      // Update local state (currentRooms)
       setCurrentRooms((prev) => {
         if (!prev) return prev;
         const updatedRooms = { ...prev };
         Object.keys(updatedRooms).forEach((key) => {
           updatedRooms[key] = updatedRooms[key].filter(
-            (room) => room.chatroomId !== chatroomId
+            (waitingRoom) => waitingRoom.chatroom.chatroomId !== chatroomId
           );
         });
         return updatedRooms;
@@ -131,7 +158,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
       <hr className="border-t border-gray-300 my-2" />
       {activeChatRoom ? (
         <p className="text-sm mb-1 cursor-pointer hover:text-blue-600">
-          {activeChatRoom.chatroomTitle}
+          {activeChatRoom.userName}
         </p>
       ) : (
         <p className="text-sm mb-1">현재 진행 중인 상담이 없습니다.</p>
@@ -163,12 +190,13 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
                   className="pt-2 cursor-pointer hover:text-blue-600"
                   onClick={() =>
                     handleChatroomStatusUpdate(
-                      room.chatroomId,
-                      room.chatroomStatus
+                      room.chatroom.chatroomId,
+                      room.chatroom.chatroomStatus,
+                      room.userName
                     )
                   }
                 >
-                  {room.chatroomTitle}
+                  {room.userName}
                 </p>
               ))}
             </div>

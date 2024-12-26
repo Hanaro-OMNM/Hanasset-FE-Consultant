@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import {
   ChatMessage,
   CurrentChatRooms,
+  CurrentWaitingRooms,
 } from '../types/hanaAssetResponse.common.ts';
 
 export class PlatformAPI {
@@ -25,11 +26,11 @@ export class PlatformAPI {
 
   public static async getWaitingRoomsInfo(
     consultantId: number // consultantId를 매개변수로 추가
-  ): Promise<CurrentChatRooms> {
+  ): Promise<CurrentWaitingRooms> {
     const response = await this.instance.get(`chat/waiting/${consultantId}`, {
       ...this.defaultConfig,
     });
-    return response.data as CurrentChatRooms;
+    return response.data as CurrentWaitingRooms;
   }
 
   public static async putChatroomStatus(

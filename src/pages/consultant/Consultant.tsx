@@ -19,7 +19,7 @@ export default function Consultant() {
         <ChatApp
           accessor="consultant"
           chatroomId={
-            activeChatRoom?.chatroomId || '18d74244-1ce7-4235-a557-ae93c1638f5d'
+            activeChatRoom?.chatroomId || '06774186-6343-476e-b5c5-49b21c085f74'
           }
         />
       </div>

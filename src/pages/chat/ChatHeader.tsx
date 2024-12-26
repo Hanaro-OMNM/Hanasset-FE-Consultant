@@ -26,19 +26,19 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       }
 
       console.log(
-        `Ending consultation for chatroomId: ${chatroom?.chatroomId}`
+        `Ending consultation for chatroomId: ${chatroom?.chatroom.chatroomId}`
       );
 
-      if (chatroom && chatroom.chatroomId) {
+      if (chatroom && chatroom.chatroom.chatroomId) {
         const response = await PlatformAPI.putChatroomStatus(
-          chatroom.chatroomId,
-          'active'
+          chatroom.chatroom.chatroomId,
+          'inactive' // Assuming you want to change status to 'inactive' when ending consultation
         );
-        console.log('Chatroom status updated to active:', response);
+        console.log('Chatroom status updated to inactive:', response);
       }
 
-      // 상담 종료 후 chatroom 상태 비우기
-      setChatroom(null); // chatroom을 null로 설정하여 리코일 상태 초기화
+      // After ending consultation, clear the chatroom state
+      setChatroom(null); // Reset the chatroom state in Recoil
     } catch (error) {
       console.error('Failed to end consultation:', error);
       alert('Failed to end consultation. Please try again.');
@@ -55,7 +55,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             className="w-6 h-6 rounded-full mr-2"
           />
           <span className="text-md font-bold text-hanaBlack80">
-            {responserName}
+            {chatroom?.userName}
           </span>
           <div className="w-2 h-2 rounded-full bg-red-500 mx-2"></div>
         </div>
@@ -63,7 +63,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center">
           <button
             className="px-2 py-1 text-xs text-white bg-hanaRed80 rounded hover:bg-hanaRed transition duration-150 ease-in-out"
-            onClick={handleEndConsultation} // 버튼 클릭 시 종료 로직 실행
+            onClick={handleEndConsultation} // End consultation button logic
           >
             상담 종료
           </button>

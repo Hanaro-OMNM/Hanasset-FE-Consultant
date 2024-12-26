@@ -20,6 +20,12 @@ export interface ChatRoom {
   createdAt: string;
 }
 
+//채팅방 Response
+export interface WaitingRoom {
+  userName: string;
+  chatroom: ChatRoom;
+}
+
 //기존 메세지 불러오기
 export interface CurrentMessages {
   message: string;
@@ -33,5 +39,13 @@ export interface CurrentChatRooms {
   message: string;
   result: {
     chatrooms: ChatRoom[];
+  };
+}
+
+//대기열
+export interface CurrentWaitingRooms {
+  message: string;
+  result: {
+    chatrooms: WaitingRoom[];
   };
 }

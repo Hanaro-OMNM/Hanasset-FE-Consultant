@@ -3,8 +3,6 @@ export interface LoginRequest {
   password: string;
 }
 
-//src/types/hanaAssetRequest.common.ts
-
 export interface CurrentLocation {
   lat: number;
   lng: number;

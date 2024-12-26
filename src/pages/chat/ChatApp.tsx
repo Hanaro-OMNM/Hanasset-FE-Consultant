@@ -2,9 +2,7 @@ import { Client, Message, StompSubscription } from '@stomp/stompjs';
 import { PiPaperPlaneRightFill } from 'react-icons/pi';
 import SockJS from 'sockjs-client';
 import React, { useState, useEffect, useRef } from 'react';
-import logo from '../../assets/img/logo.png';
 import profile from '../../assets/img/profile_ex.jpg';
-import GuestChatDetail from '../GuestChatDetail';
 import ChatHeader from './ChatHeader';
 import ChatMessage from './ChatMessage';
 
@@ -147,7 +145,6 @@ const ChatApp: React.FC<ChatAppProps> = ({
         time: getCurrentTime(),
       };
 
-      //setMessages((prevMessages) => [...prevMessages, newMessage]);
       setInputMessage('');
     }
   };
@@ -155,87 +152,42 @@ const ChatApp: React.FC<ChatAppProps> = ({
   return (
     <div>
       <div>
-        {accessor === 'guest' ? (
-          <div className="top-0 absolute pl-4 animate-fadeInRight">
-            <div className="flex flex-col h-screen w-full items-center min-w-[420px]">
-              <ChatHeader
-                responserName="하나은행 상담사"
-                responserImage={logo}
+        <div className="flex flex-col h-screen w-full items-center">
+          <ChatHeader responserImage={profile} />
+          <div className="flex-1 w-full px-4 md:px-8 py-4 bg-hanaSilver20 shadow overflow-y-auto scrollbar-hide hover:scrollbar-hide hover:scrollbar-thumb-gray-400 space-y-4">
+            {messages.map((msg, index) => (
+              <ChatMessage
+                key={msg.id}
+                subject={msg.subject}
+                message={msg.message}
+                lastMessageTime={
+                  index === 0 || msg.time !== messages[index - 1].time
+                    ? msg.time
+                    : null
+                }
+                responserName="고객1"
+                responserImage={profile}
               />
-              <div className="flex-1 w-full px-4 md:px-8 py-4 bg-hanaSilver20 shadow overflow-y-auto scrollbar-hide hover:scrollbar-hide hover:scrollbar-thumb-gray-400 space-y-4">
-                {messages.map((msg, index) => (
-                  <ChatMessage
-                    key={msg.id}
-                    subject={msg.subject}
-                    message={msg.message}
-                    lastMessageTime={
-                      index === 0 || msg.time !== messages[index - 1].time
-                        ? msg.time
-                        : null
-                    }
-                    responserName="하나은행 상담사"
-                    responserImage={logo}
-                  />
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-              <div className="flex w-full p-5 bg-hanaGreen60">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-1 px-4 rounded-full text-sm border-2 focus:border-hanaGreen80 focus:outline-none"
-                  placeholder="메세지를 입력해주세요..."
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="flex items-center justify-center p-2 ml-2 rounded-full bg-hanaGreen80 text-white hover:bg-hanaGreen transition duration-150 ease-in-out"
-                >
-                  <PiPaperPlaneRightFill className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <GuestChatDetail />
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        ) : (
-          <div className="flex flex-col h-screen w-full items-center">
-            <ChatHeader responserName={'고객1'} responserImage={profile} />
-            <div className="flex-1 w-full px-4 md:px-8 py-4 bg-hanaSilver20 shadow overflow-y-auto scrollbar-hide hover:scrollbar-hide hover:scrollbar-thumb-gray-400 space-y-4">
-              {messages.map((msg, index) => (
-                <ChatMessage
-                  key={msg.id}
-                  subject={msg.subject}
-                  message={msg.message}
-                  lastMessageTime={
-                    index === 0 || msg.time !== messages[index - 1].time
-                      ? msg.time
-                      : null
-                  }
-                  responserName="고객1"
-                  responserImage={profile}
-                />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-            <div className="flex w-full p-5 bg-hanaGreen60">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                className="flex-1 px-4 rounded-full text-sm border-2 focus:border-hanaGreen80 focus:outline-none"
-                placeholder="메세지를 입력해주세요..."
-              />
-              <button
-                onClick={handleSendMessage}
-                className="flex items-center justify-center p-2 ml-2 rounded-full bg-hanaGreen80 text-white hover:bg-hanaGreen transition duration-150 ease-in-out"
-              >
-                <PiPaperPlaneRightFill className="h-5 w-5" />
-              </button>
-            </div>
+          <div className="flex w-full p-5 bg-hanaGreen60">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              className="flex-1 px-4 rounded-full text-sm border-2 focus:border-hanaGreen80 focus:outline-none"
+              placeholder="메세지를 입력해주세요..."
+            />
+            <button
+              onClick={handleSendMessage}
+              className="flex items-center justify-center p-2 ml-2 rounded-full bg-hanaGreen80 text-white hover:bg-hanaGreen transition duration-150 ease-in-out"
+            >
+              <PiPaperPlaneRightFill className="h-5 w-5" />
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

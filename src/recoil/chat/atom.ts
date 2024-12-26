@@ -1,4 +1,3 @@
-// atoms/chatRoomState.ts
 import { atom } from 'recoil';
 import { recoilPersist } from 'recoil-persist';
 import { WaitingRoom } from '../../types/hanaAssetResponse.common';
@@ -9,7 +8,7 @@ const { persistAtom } = recoilPersist({
 });
 
 export const activeChatRoomState = atom<WaitingRoom | null>({
-  key: 'activeChatRoomState', // Unique key
-  default: null, // 초기값은 null
-  effects_UNSTABLE: [persistAtom], // persistAtom을 추가
+  key: 'activeChatRoomState',
+  default: null,
+  effects_UNSTABLE: [persistAtom],
 });

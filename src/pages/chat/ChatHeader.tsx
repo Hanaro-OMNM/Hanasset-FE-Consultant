@@ -1,19 +1,14 @@
 import { HiBell } from 'react-icons/hi';
-import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import React from 'react';
 import { PlatformAPI } from '../../platform/PlatformAPI';
 import { activeChatRoomState } from '../../recoil/chat/atom';
 
 type ChatHeaderProps = {
-  responserName: string;
   responserImage: string;
 };
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({
-  responserName,
-  responserImage,
-}) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ responserImage }) => {
   const [chatroom, setChatroom] = useRecoilState(activeChatRoomState);
 
   const handleEndConsultation = async () => {
@@ -78,5 +73,3 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 };
 
 export default ChatHeader;
-
-//로그아웃

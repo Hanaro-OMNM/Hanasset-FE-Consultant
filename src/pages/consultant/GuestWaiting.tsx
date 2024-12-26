@@ -2,12 +2,11 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
-import { consultationData, initialExpandedState } from '../../assets/Dummy';
+import { initialExpandedState } from '../../assets/Dummy';
 import { PlatformAPI } from '../../platform/PlatformAPI';
 import { activeChatRoomState } from '../../recoil/chat/atom';
 import isLoginAtom from '../../recoil/isLogin';
 import {
-  ChatRoom,
   CurrentWaitingRooms,
   WaitingRoom,
 } from '../../types/hanaAssetResponse.common';
@@ -63,7 +62,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
     };
 
     fetchConsultationData();
-  }, [consultantId]);
+  }, [consultantId, activeChatRoom]);
 
   const groupChatRoomsByTimeInterval = (
     waitingRooms: WaitingRoom[],
@@ -76,23 +75,19 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
         // 유효성 검사: reservedTime이 null 또는 undefined인지 확인
         if (!chatroom || !chatroom.reservedTime) {
           console.warn('Invalid chatroom:', room);
-          return acc; // Skip to the next
+          return acc;
         }
 
         try {
-          // Extract hour and minute as numbers
           const [hour, minute] = chatroom.reservedTime
             .split(' ')[1]
             .split(':')
             .map(Number);
 
-          // Round to the nearest interval
           const adjustedMinute = minute < intervalMinutes ? '00' : '30';
 
-          // Format as 'HH:MM'
           const timeSlot = `${String(hour).padStart(2, '0')}:${adjustedMinute}`;
 
-          // Add room to the correct time slot
           if (!acc[timeSlot]) acc[timeSlot] = [];
           acc[timeSlot].push(room);
         } catch (error) {
@@ -115,10 +110,9 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
   const handleChatroomStatusUpdate = async (
     chatroomId: string,
     chatroomStatus: string,
-    userName: string // Add userName parameter
+    userName: string
   ) => {
     try {
-      // Update chatroom status through the API
       const updatedRoom = await PlatformAPI.putChatroomStatus(
         chatroomId,
         chatroomStatus
@@ -128,17 +122,15 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
         `Chatroom "${updatedRoom.result.chatrooms[0].chatroomTitle}" status updated successfully!`
       );
 
-      // Extract room from the response
       const room = updatedRoom.result.chatrooms[0];
 
       // Recoil 상태 업데이트 (하나의 상담만 활성화됨)
       setActiveChatRoom((prev) => ({
-        ...prev, // Spread previous state to retain other properties
-        chatroom: room, // Update the chatroom property
-        userName: userName, // Update the userName property
+        ...prev,
+        chatroom: room,
+        userName: userName,
       }));
 
-      // Update local state (currentRooms)
       setCurrentRooms((prev) => {
         if (!prev) return prev;
         const updatedRooms = { ...prev };

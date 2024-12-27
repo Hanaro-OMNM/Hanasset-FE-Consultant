@@ -38,10 +38,8 @@ export class PlatformAPI {
           ) {
             const accessToken = authorizationHeader.split(' ')[1];
             localStorage.setItem('accessToken', accessToken);
-            return accessToken;
           } else {
             console.error('Authorization header is missing or invalid');
-            return undefined;
           }
         }
         return response;

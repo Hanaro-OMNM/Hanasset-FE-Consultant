@@ -1,4 +1,3 @@
-import { jwtDecode } from 'jwt-decode';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import { useEffect } from 'react';
@@ -12,20 +11,9 @@ function AppContent() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useRecoilState(isLoginAtom);
 
-  const isTokenExpired = (token: string) => {
-    try {
-      const decoded = jwtDecode(token); // 토큰 디코딩
-      const currentTime = Math.floor(Date.now() / 1000);
-      return decoded.exp! < currentTime; // 만료 여부 확인
-    } catch (error) {
-      console.error('Invalid token', error);
-      return true;
-    }
-  };
-
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken || (accessToken && isTokenExpired(accessToken))) {
+    if (!accessToken) {
       setIsLogin(false);
     }
     if (!isLogin) {

@@ -20,6 +20,7 @@ export default function ConsultantLogin() {
     if (loginSuccess) {
       alert('로그인 성공하셨습니다.');
       const decodedPayload = jwtDecode(loginSuccess);
+      console.log(decodedPayload.sub);
       if (decodedPayload.sub) {
         if (!isLogin) {
           setIsLogin(true);

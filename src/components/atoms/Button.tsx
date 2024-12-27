@@ -5,7 +5,7 @@ interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   text: string;
-  version?: 'ver1' | 'ver2'; //버튼 버전 선택 1: bg-hanagreen 2: border만 hanagreen
+  version?: 'ver1' | 'ver2';
 }
 
 export default function Button({

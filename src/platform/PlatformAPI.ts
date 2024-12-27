@@ -1,6 +1,11 @@
 import axios, { AxiosInstance } from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { LoginRequest } from '../types/hanaAssetRequest.common.ts';
+import {
+  ChatMessage,
+  CurrentChatRooms,
+  CurrentWaitingRooms,
+} from '../types/hanaAssetResponse.common.ts';
 
 export class PlatformAPI {
   static isTokenExpired = (token: string) => {
@@ -71,5 +76,37 @@ export class PlatformAPI {
       console.error('Error during login:', error);
       return undefined;
     }
+  }
+
+  private static readonly defaultConfig = {
+    headers: { 'Content-Type': 'application/json' },
+  };
+  public static async getMessagesInfo(
+    chatroomId: string
+  ): Promise<ChatMessage> {
+    const response = await this.instance.get(`chat/chatroom/messages`, {
+      ...this.defaultConfig,
+      params: chatroomId, //쿼리 파라미터
+    });
+    return response.data as ChatMessage;
+  }
+
+  public static async getWaitingRoomsInfo(): Promise<CurrentWaitingRooms> {
+    const response = await this.instance.get('chat/waiting', {
+      ...this.defaultConfig,
+    });
+    return response.data as CurrentWaitingRooms;
+  }
+
+  public static async putChatroomStatus(
+    chatroomId: string,
+    state: string
+  ): Promise<CurrentChatRooms> {
+    const response = await this.instance.put(
+      `chat/update-status`,
+      { chatroomId, state }, //request body
+      { ...this.defaultConfig }
+    );
+    return response.data as CurrentChatRooms;
   }
 }

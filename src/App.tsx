@@ -5,8 +5,6 @@ import { useEffect } from 'react';
 import './App.css';
 import Layout from './components/template/Layout.tsx';
 import LoginPage from './pages/Login/login.tsx';
-import ChatApp from './pages/chat/ChatApp.tsx';
-import ChatHistory from './pages/chat/ChatHistory.tsx';
 import Consultant from './pages/consultant/Consultant.tsx';
 import isLoginAtom from './recoil/isLogin';
 
@@ -43,12 +41,8 @@ function AppContent() {
         <Layout>
           <Routes>
             <Route path="/" element={<Consultant />} />
+            {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/live-chat" element={<ChatApp accessor="guest" />} />
-            <Route
-              path="/chat-history/:id"
-              element={<ChatHistory accessor="guest" />}
-            />
           </Routes>
         </Layout>
       </RecoilRoot>

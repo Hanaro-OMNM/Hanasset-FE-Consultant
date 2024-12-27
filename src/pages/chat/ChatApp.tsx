@@ -16,11 +16,8 @@ type ChatMessageType = {
   time: string;
 };
 
-interface ChatAppProps {
-  accessor: 'guest' | 'consultant';
-}
-
-const ChatApp: React.FC<ChatAppProps> = ({ accessor }) => {
+const ChatApp: React.FC = () => {
+  const accessor = 'consultant';
   const [inputMessage, setInputMessage] = useState<string>('');
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [messages, setMessages] = useState<ChatMessageType[]>([]);

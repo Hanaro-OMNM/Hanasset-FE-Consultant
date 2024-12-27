@@ -15,13 +15,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ responserImage }) => {
     try {
       if (!chatroom) {
         console.error('Chatroom is not set.');
-        alert('Chatroom ID is missing. Cannot end consultation.');
         return;
       }
-
-      console.log(
-        `Ending consultation for chatroomId: ${chatroom?.chatroom.chatroomId}`
-      );
 
       if (chatroom && chatroom.chatroom.chatroomId) {
         const response = await PlatformAPI.putChatroomStatus(

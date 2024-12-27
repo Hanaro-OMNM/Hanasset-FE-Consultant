@@ -11,7 +11,7 @@ export default function Consultant() {
       </div>
       {/* 채팅 */}
       <div className="w-screen">
-        <ChatApp accessor="consultant" />
+        <ChatApp />
       </div>
       {/* 고객 정보 */}
       <div>

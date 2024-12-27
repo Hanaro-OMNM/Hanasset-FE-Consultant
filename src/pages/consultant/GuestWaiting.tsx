@@ -30,8 +30,6 @@ export default function GuestWaiting() {
         const waitingRooms: CurrentWaitingRooms =
           await PlatformAPI.getWaitingRoomsInfo();
 
-        console.log(waitingRooms);
-
         const groupedData = groupChatRoomsByTimeInterval(
           waitingRooms.result.chatrooms.filter(
             (room) => room.chatroom && room.chatroom.chatroomStatus !== 'active'
@@ -39,7 +37,6 @@ export default function GuestWaiting() {
           30
         );
 
-        console.log(groupedData);
         setCurrentRooms(groupedData);
 
         setExpanded(
@@ -112,7 +109,6 @@ export default function GuestWaiting() {
         chatroomId,
         chatroomStatus
       );
-      console.log('Updated room:', updatedRoom);
       alert(
         `Chatroom "${updatedRoom.result.chatrooms[0].chatroomTitle}" status updated successfully!`
       );

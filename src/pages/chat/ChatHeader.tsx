@@ -26,13 +26,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ responserImage }) => {
       if (chatroom && chatroom.chatroom.chatroomId) {
         const response = await PlatformAPI.putChatroomStatus(
           chatroom.chatroom.chatroomId,
-          'active' // Assuming you want to change status to 'inactive' when ending consultation
+          'active'
         );
         console.log('Chatroom status updated to inactive:', response);
       }
 
-      // After ending consultation, clear the chatroom state
-      setChatroom(null); // Reset the chatroom state in Recoil
+      setChatroom(null);
+      window.location.href = '/';
     } catch (error) {
       console.error('Failed to end consultation:', error);
       alert('Failed to end consultation. Please try again.');
@@ -57,7 +57,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ responserImage }) => {
         <div className="flex items-center">
           <button
             className="px-2 py-1 text-xs text-white bg-hanaRed80 rounded hover:bg-hanaRed transition duration-150 ease-in-out"
-            onClick={handleEndConsultation} // End consultation button logic
+            onClick={handleEndConsultation}
           >
             상담 종료
           </button>

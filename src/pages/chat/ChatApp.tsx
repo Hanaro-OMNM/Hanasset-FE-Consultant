@@ -1,8 +1,10 @@
 import { Client, Message, StompSubscription } from '@stomp/stompjs';
 import { PiPaperPlaneRightFill } from 'react-icons/pi';
+import { useRecoilState } from 'recoil';
 import SockJS from 'sockjs-client';
 import React, { useState, useEffect, useRef } from 'react';
 import profile from '../../assets/img/profile_ex.jpg';
+import { activeChatRoomState } from '../../recoil/chat/atom';
 import ChatHeader from './ChatHeader';
 import ChatMessage from './ChatMessage';
 
@@ -15,22 +17,25 @@ type ChatMessageType = {
 };
 
 interface ChatAppProps {
-  accessor: 'guest' | 'consultant'; // 사용자 역할
-  chatroomId: string; // 채팅방 ID
+  accessor: 'guest' | 'consultant';
   consultantId: number;
 }
 
-const ChatApp: React.FC<ChatAppProps> = ({
-  accessor,
-  chatroomId,
-  consultantId,
-}) => {
+const ChatApp: React.FC<ChatAppProps> = ({ accessor, consultantId }) => {
   const [inputMessage, setInputMessage] = useState<string>('');
   const [stompClient, setStompClient] = useState<Client | null>(null);
-  const [subscription, setSubscription] = useState<StompSubscription | null>(
-    null
-  );
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
+  const [activeChatRoom, setActiveChatRoom] =
+    useRecoilState(activeChatRoomState);
+  const [chatroomId, setChatroomId] = useState<string | null>(
+    activeChatRoom?.chatroom.chatroomId ?? null
+  );
+
+  useEffect(() => {
+    if (activeChatRoom?.chatroom.chatroomId) {
+      setChatroomId(activeChatRoom.chatroom.chatroomId);
+    }
+  }, [activeChatRoom]);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -50,7 +55,9 @@ const ChatApp: React.FC<ChatAppProps> = ({
   };
 
   useEffect(() => {
-    const socket = new SockJS('http://localhost:8080/ws-chat'); // 백엔드 서버 URL
+    if (!chatroomId) return;
+
+    const socket = new SockJS('http://localhost:8080/ws-chat');
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -58,6 +65,8 @@ const ChatApp: React.FC<ChatAppProps> = ({
         Authorization: `Bearer ${window.localStorage.getItem('accessToken')}`,
       },
     });
+
+    let subscriptionRef: StompSubscription | null = null;
 
     client.onConnect = () => {
       console.log(`[${accessor}] Connected to WebSocket`);
@@ -71,7 +80,7 @@ const ChatApp: React.FC<ChatAppProps> = ({
       });
 
       // Redis에서 메시지 기록 및 실시간 메시지 처리
-      const sub = client.subscribe(
+      subscriptionRef = client.subscribe(
         `/topic/rooms/${chatroomId}`,
         (message: Message) => {
           const newData = JSON.parse(message.body);
@@ -104,19 +113,21 @@ const ChatApp: React.FC<ChatAppProps> = ({
           }
         }
       );
-
-      setSubscription(sub);
     };
 
     client.activate();
     setStompClient(client);
 
-    // 컴포넌트 언마운트 시 정리
     return () => {
-      if (subscription) subscription.unsubscribe();
-      client.deactivate();
+      if (subscriptionRef) {
+        subscriptionRef.unsubscribe();
+        console.log('Unsubscribed from WebSocket topic');
+      }
+      client.deactivate().then(() => {
+        console.log('WebSocket client deactivated');
+      });
     };
-  }, [chatroomId, accessor]);
+  }, [chatroomId]);
 
   const handleSendMessage = () => {
     if (stompClient && inputMessage.trim() !== '') {
@@ -136,15 +147,6 @@ const ChatApp: React.FC<ChatAppProps> = ({
           Authorization: `Bearer ${window.localStorage.getItem('accessToken')}`,
         },
       });
-
-      const newMessage: ChatMessageType = {
-        id: messages.length + 1,
-        user: accessor === 'consultant' ? 'consultant' : 'guest',
-        subject: 'sender',
-        message: inputMessage,
-        time: getCurrentTime(),
-      };
-
       setInputMessage('');
     }
   };

@@ -34,19 +34,16 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
           await PlatformAPI.getWaitingRoomsInfo(consultantId);
 
         console.log(waitingRooms);
-        // Group waiting rooms by 30-minute intervals
+
         const groupedData = groupChatRoomsByTimeInterval(
           waitingRooms.result.chatrooms.filter(
-            (room) => room.chatroom && room.chatroom.chatroomStatus !== 'active' // Check for valid `chatroom` and status
+            (room) => room.chatroom && room.chatroom.chatroomStatus !== 'active'
           ),
           30
         );
 
         console.log(groupedData);
-
         setCurrentRooms(groupedData);
-
-        // Initialize expanded state
         setExpanded(
           Object.keys(groupedData).reduce(
             (acc, key) => {

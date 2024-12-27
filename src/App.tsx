@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import './App.css';
 import Layout from './components/template/Layout.tsx';
 import LoginPage from './pages/Login/login.tsx';
-import ChatHistory from './pages/chat/ChatHistory.tsx';
 import Consultant from './pages/consultant/Consultant.tsx';
 import isLoginAtom from './recoil/isLogin';
 

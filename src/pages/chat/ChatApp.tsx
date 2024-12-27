@@ -18,10 +18,9 @@ type ChatMessageType = {
 
 interface ChatAppProps {
   accessor: 'guest' | 'consultant';
-  consultantId: number;
 }
 
-const ChatApp: React.FC<ChatAppProps> = ({ accessor, consultantId }) => {
+const ChatApp: React.FC<ChatAppProps> = ({ accessor }) => {
   const [inputMessage, setInputMessage] = useState<string>('');
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
@@ -134,7 +133,6 @@ const ChatApp: React.FC<ChatAppProps> = ({ accessor, consultantId }) => {
       const message = {
         messageType: 'TALK',
         chatroomId: chatroomId,
-        senderId: consultantId,
         accessor: accessor,
         content: inputMessage,
         createdAt: new Date().toISOString(),

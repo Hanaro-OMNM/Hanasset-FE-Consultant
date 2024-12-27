@@ -2,7 +2,6 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
-import { initialExpandedState } from '../../assets/Dummy';
 import { PlatformAPI } from '../../platform/PlatformAPI';
 import { activeChatRoomState } from '../../recoil/chat/atom';
 import isLoginAtom from '../../recoil/isLogin';
@@ -11,11 +10,9 @@ import {
   WaitingRoom,
 } from '../../types/hanaAssetResponse.common';
 
-interface GuestWaitingProps {
-  consultantId: number;
-}
+const initialExpandedState = {};
 
-export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
+export default function GuestWaiting() {
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>(
     initialExpandedState
   );
@@ -31,7 +28,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
     const fetchConsultationData = async () => {
       try {
         const waitingRooms: CurrentWaitingRooms =
-          await PlatformAPI.getWaitingRoomsInfo(consultantId);
+          await PlatformAPI.getWaitingRoomsInfo();
 
         console.log(waitingRooms);
 
@@ -44,6 +41,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
 
         console.log(groupedData);
         setCurrentRooms(groupedData);
+
         setExpanded(
           Object.keys(groupedData).reduce(
             (acc, key) => {
@@ -59,7 +57,7 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
     };
 
     fetchConsultationData();
-  }, [consultantId, activeChatRoom]);
+  }, [activeChatRoom]);
 
   const groupChatRoomsByTimeInterval = (
     waitingRooms: WaitingRoom[],
@@ -154,48 +152,52 @@ export default function GuestWaiting({ consultantId }: GuestWaitingProps) {
           {activeChatRoom.userName}
         </p>
       ) : (
-        <p className="text-sm mb-1">현재 진행 중인 상담이 없습니다.</p>
+        <p className="text-gray-500">현재 진행 중인 상담이 없습니다.</p>
       )}
 
       {/* 상담 예약 섹션 */}
       <h2 className="text-lg font-bold mt-4">상담 예약</h2>
       <hr className="border-t border-gray-300 my-2" />
-      {Object.keys(expanded).map((timeSlot) => (
-        <div key={timeSlot} className="mb-4">
-          <div
-            className="flex justify-between cursor-pointer"
-            onClick={() => toggleExpand(timeSlot)}
-          >
-            <h3 className="text-md font-semibold">{timeSlot}</h3>
-            <span>
-              {expanded[timeSlot] ? (
-                <FaChevronUp className="text-hanaBlack80" />
-              ) : (
-                <FaChevronDown className="text-hanaBlack80" />
-              )}
-            </span>
-          </div>
-          {expanded[timeSlot] && currentRooms && currentRooms[timeSlot] && (
-            <div className="pl-1">
-              {currentRooms[timeSlot].map((room, index) => (
-                <p
-                  key={index}
-                  className="pt-2 cursor-pointer hover:text-blue-600"
-                  onClick={() =>
-                    handleChatroomStatusUpdate(
-                      room.chatroom.chatroomId,
-                      room.chatroom.chatroomStatus,
-                      room.userName
-                    )
-                  }
-                >
-                  {room.userName}
-                </p>
-              ))}
+      {Object.keys(expanded).length > 0 ? (
+        Object.keys(expanded).map((timeSlot) => (
+          <div key={timeSlot} className="mb-4">
+            <div
+              className="flex justify-between cursor-pointer"
+              onClick={() => toggleExpand(timeSlot)}
+            >
+              <h3 className="text-md font-semibold">{timeSlot}</h3>
+              <span>
+                {expanded[timeSlot] ? (
+                  <FaChevronUp className="text-hanaBlack80" />
+                ) : (
+                  <FaChevronDown className="text-hanaBlack80" />
+                )}
+              </span>
             </div>
-          )}
-        </div>
-      ))}
+            {expanded[timeSlot] && currentRooms && currentRooms[timeSlot] && (
+              <div className="pl-1">
+                {currentRooms[timeSlot].map((room, index) => (
+                  <p
+                    key={index}
+                    className="pt-2 cursor-pointer hover:text-blue-600"
+                    onClick={() =>
+                      handleChatroomStatusUpdate(
+                        room.chatroom.chatroomId,
+                        room.chatroom.chatroomStatus,
+                        room.userName
+                      )
+                    }
+                  >
+                    {room.userName}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="text-gray-500">현재 대기중인 상담이 없습니다.</div>
+      )}
 
       {/* 푸터 섹션 */}
       <footer className="absolute bottom-3 left-1/2 transform -translate-x-1/2">

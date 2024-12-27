@@ -91,10 +91,8 @@ export class PlatformAPI {
     return response.data as ChatMessage;
   }
 
-  public static async getWaitingRoomsInfo(
-    consultantId: number // consultantId를 매개변수로 추가
-  ): Promise<CurrentWaitingRooms> {
-    const response = await this.instance.get(`chat/waiting/${consultantId}`, {
+  public static async getWaitingRoomsInfo(): Promise<CurrentWaitingRooms> {
+    const response = await this.instance.get('chat/waiting', {
       ...this.defaultConfig,
     });
     return response.data as CurrentWaitingRooms;

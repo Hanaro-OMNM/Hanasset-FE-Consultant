@@ -44,10 +44,6 @@ function AppContent() {
             <Route path="/" element={<Consultant />} />
             {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
             <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/chat-history/:id"
-              element={<ChatHistory accessor="guest" />}
-            />
           </Routes>
         </Layout>
       </RecoilRoot>

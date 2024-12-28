@@ -6,7 +6,9 @@ export default function Consultant() {
   return (
     <div className="flex justify-center">
       {/* 상담 예약 */}
-      <div>{/* <GuestWaiting /> */}</div>
+      <div>
+        <GuestWaiting />
+      </div>
       {/* 채팅 */}
       <div className="w-screen">
         <ChatApp />

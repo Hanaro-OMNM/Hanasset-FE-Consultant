@@ -7,7 +7,7 @@ import { dummyBeotimmogLoanGroup } from '../assets/Dummy';
 import CommonBackground from '../components/atoms/CommonBackground';
 import Swiper from '../components/atoms/Swiper';
 import FixedExpectation from './GuestChatDetail/FixedExpectation';
-import LoanDetail from './LoanDetail';
+import LoanDetailPage from './LoanDetail';
 import DsrInfo from './LoanRecommend/components/DsrInfo';
 import LoanRecommendTab from './LoanRecommend/components/LoanRecommendTab';
 import SemiTitle from './consultant/SemiTitle';
@@ -29,7 +29,7 @@ const GuestChatDetail: React.FC = () => {
     <div className="top-0 absolute animate-slideInRight">
       {showDetail ? (
         <div className="absolute left-[420px]">
-          <LoanDetail onHide={() => setShowDetail(false)} />
+          <LoanDetailPage onHide={() => setShowDetail(false)} />
         </div>
       ) : (
         <div className="w-[420px] backdrop-blur-[10px] absolute px-4 top-0 h-screen left-[420px] overflow-y-auto bg-gray-50/90 scrollbar-hide">

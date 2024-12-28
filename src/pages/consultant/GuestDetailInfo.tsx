@@ -3,9 +3,10 @@ interface GuestDetailInfoProps {
   age: number;
   job: string;
   income: number;
-  family: boolean;
-  home: boolean;
-  loan: number;
+  capital: number;
+  hasHome: boolean;
+  annualInterest: number;
+  annualPrinciple: number;
   dsr: number;
 }
 
@@ -14,9 +15,10 @@ const GuestDetailInfo: React.FC<GuestDetailInfoProps> = ({
   age,
   job,
   income,
-  family,
-  home,
-  loan,
+  capital,
+  hasHome,
+  annualInterest,
+  annualPrinciple,
   dsr,
 }) => {
   return (
@@ -25,10 +27,10 @@ const GuestDetailInfo: React.FC<GuestDetailInfoProps> = ({
       <p>나이: {age}</p>
       <p>직업: {job}</p>
       <p>연소득: {income.toLocaleString()}만 원</p>
-      <p>결혼자녀유무: {family ? '있음' : '없음'} </p>
-      <p>보유 주택: {home ? '있음' : '없음'}</p>
-      <p>보유 대출: {loan > 0 ? '있음' : '없음'}</p>
-      <p>보유 대출: {loan > 0 ? '있음' : '없음'}</p>
+      <p>자본금: {capital.toLocaleString()}만 원</p>
+      <p>보유 주택: {hasHome ? '있음' : '없음'}</p>
+      <p> 연이자 상환액: {annualInterest}</p>
+      <p> 연원금 상환액: {annualPrinciple}</p>
       <p>현재 DSR: {dsr}%</p>
     </div>
   );

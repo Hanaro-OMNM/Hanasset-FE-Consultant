@@ -2,35 +2,24 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import clsx from 'clsx';
 import { useState } from 'react';
 import CommonBackground from '../../../components/atoms/CommonBackground';
+import { LoanInfo } from '../../../types/hanaAssetResponse.common';
 import LoanCard from './LoanCard';
 import LoanFoundMessage from './LoanFoundMessage';
 
-// Dummy Data
-interface Loan {
-  name: string;
-  rate: number;
-  limit: number;
-  newDsr: number;
-  loanDetailUrl: string;
-}
-
 interface LoanRecommendTabProps {
-  hanaLoanList: Loan[];
-  beotimmogLoanList: Loan[];
-  onLoanDetailButtonClick: () => void;
+  hanaLoanList: LoanInfo[];
+  beotimmogLoanList: LoanInfo[];
+  onLoanDetailButtonClick: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-// 대출 리스트 정렬 순서 및 최소 개수 전처리
-const loanListPreProcessing = (loanList: Loan[]) => {
-  // 금리 낮은 순으로 정렬
-  loanList.sort((a, b) => a.rate - b.rate);
-
-  const emptyLoan: Loan = {
+// 대출 리스트 최소 개수 전처리
+const loanListPreProcessing = (loanList: LoanInfo[]) => {
+  const emptyLoan: LoanInfo = {
     name: '-',
+    loanId: 0,
     rate: 100,
-    limit: 0,
-    newDsr: 100,
-    loanDetailUrl: '',
+    limitAmount: 0,
+    dsr: 100,
   };
 
   while (loanList.length < 3) {
@@ -96,16 +85,16 @@ const LoanRecommendTab: React.FC<LoanRecommendTabProps> = ({
               {/* 하나은행 대출 리스트 */}
               {isHanaLoanFound ? (
                 <div className="mt-4 px-4 w-full flex-col animate-fadeInUp">
-                  {hanaLoanList.map((loan: Loan, index: number) => (
+                  {hanaLoanList.map((loan: LoanInfo, index: number) => (
                     <LoanCard
                       key={index}
                       isBest={index === 0 ? true : false}
                       isShow={index < showCount ? true : false}
+                      loanId={loan.loanId}
                       name={loan.name}
                       rate={loan.rate}
-                      limit={loan.limit}
-                      newDsr={loan.newDsr}
-                      loanDetailUrl={loan.loanDetailUrl}
+                      limit={loan.limitAmount}
+                      dsr={loan.dsr}
                       onLoanDetailButtonClick={onLoanDetailButtonClick}
                     />
                   ))}
@@ -130,16 +119,16 @@ const LoanRecommendTab: React.FC<LoanRecommendTabProps> = ({
               {/* 버팀목 대출 리스트 */}
               {isBeotimmogLoanFound ? (
                 <div className="mt-4 px-4 w-full flex-col animate-fadeInUp">
-                  {beotimmogLoanList.map((loan: Loan, index: number) => (
+                  {beotimmogLoanList.map((loan: LoanInfo, index: number) => (
                     <LoanCard
                       key={index}
                       isBest={index === 0 ? true : false}
                       isShow={index < showCount ? true : false}
+                      loanId={loan.loanId}
                       name={loan.name}
                       rate={loan.rate}
-                      limit={loan.limit}
-                      newDsr={loan.newDsr}
-                      loanDetailUrl={loan.loanDetailUrl}
+                      limit={loan.limitAmount}
+                      dsr={loan.dsr}
                       onLoanDetailButtonClick={onLoanDetailButtonClick}
                     />
                   ))}

@@ -52,7 +52,9 @@ const LoanLimit: React.FC<LoanLimitProps> = ({ isBest, limit }) => {
         !isBest && 'h-5 text-hanaBlack60 text-xs font-semibold'
       )}
     >
-      {`${limit}억 원`}
+      {limit > 10000
+        ? `${(limit / 10000).toLocaleString()}억 원`
+        : `${limit.toLocaleString()}만 원`}
     </h6>
   );
 };

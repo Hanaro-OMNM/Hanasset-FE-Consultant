@@ -8,6 +8,7 @@ import { activeChatRoomState } from '../recoil/chat/atom';
 import { LoanDetail } from '../types/hanaAssetResponse.common';
 import InstructionCard from './LoanDetail/Components/InstructionCard';
 import LoanDetailAccentInfo from './LoanDetail/Components/LoanDetailAccentInfo';
+import LoanDetailCard from './LoanDetail/Components/LoanDetailCard';
 import LoanDetailDisclosure from './LoanDetail/Components/LoanDetailDisclosure';
 import LoanDetailHint from './LoanDetail/Components/LoanDetailHint';
 
@@ -56,6 +57,11 @@ const LoanDetailPage: React.FC<LoanDetailProps> = ({
           <CommonBackground>
             <div className="py-3 mx-4">
               {/* 대출 정보 카드 */}
+              <LoanDetailCard
+                type={loanDetailInfo ? loanDetailInfo.type : ''}
+                name={loanDetailInfo ? loanDetailInfo.name : ''}
+                outline={loanDetailInfo ? loanDetailInfo.outline : ''}
+              />
               <LoanDetailAccentInfo
                 title={`${name}님의 금리`}
                 content={`${loanDetailInfo ? loanDetailInfo.rate : ''}%`}

@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { selectedEstateType } from '../../types/global';
+import { selectedEstateType } from '../../types/hanaAsset';
 
 interface LoanReservationState {
   reservationInfo: selectedEstateType[];

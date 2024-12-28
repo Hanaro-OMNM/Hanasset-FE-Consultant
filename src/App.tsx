@@ -2,7 +2,6 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import { useEffect } from 'react';
 import './App.css';
-import Layout from './components/template/Layout.tsx';
 import LoginPage from './pages/Login/login.tsx';
 import Consultant from './pages/consultant/Consultant.tsx';
 import isLoginAtom from './recoil/isLogin';
@@ -26,13 +25,11 @@ function AppContent() {
   return (
     <div className="App">
       <RecoilRoot>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Consultant />} />
-            {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
-            <Route path="/login" element={<LoginPage />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/" element={<Consultant />} />
+          {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
       </RecoilRoot>
     </div>
   );

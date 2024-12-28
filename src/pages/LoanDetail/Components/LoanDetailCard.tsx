@@ -5,7 +5,7 @@ interface TypeProps {
 
 const Type: React.FC<TypeProps> = ({ type }) => {
   return (
-    <h6 className="h-5 pl-1 text-hanaSilver80 text-xs font-semibold">{type}</h6>
+    <p className="mb-1 pl-1 text-hanaSilver80 text-xs font-semibold">{type}</p>
   );
 };
 
@@ -15,9 +15,7 @@ interface LoanNameProps {
 }
 
 const LoanName: React.FC<LoanNameProps> = ({ name }) => {
-  return (
-    <h2 className="h-10 text-hanaBlack80 text-2xl font-semibold">{name}</h2>
-  );
+  return <p className="text-hanaBlack80 text-2xl font-semibold">{name}</p>;
 };
 
 // Outline Components
@@ -27,7 +25,7 @@ interface OutlineProps {
 
 const Outline: React.FC<OutlineProps> = ({ outline }) => {
   return (
-    <h5 className="w-80 text-hanaSilver text-sm font-semibold">{outline}</h5>
+    <p className="w-80 text-hanaSilver text-sm font-semibold">{outline}</p>
   );
 };
 

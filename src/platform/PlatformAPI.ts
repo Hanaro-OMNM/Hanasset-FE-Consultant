@@ -5,6 +5,8 @@ import {
   ChatMessage,
   CurrentChatRooms,
   CurrentWaitingRooms,
+  LoanRecommend,
+  LoanDetail,
 } from '../types/hanaAssetResponse.common.ts';
 
 export class PlatformAPI {
@@ -106,5 +108,31 @@ export class PlatformAPI {
       { ...this.defaultConfig }
     );
     return response.data as CurrentChatRooms;
+  }
+
+  public static async getConsultingUserInfo(
+    chatroomId: string,
+    userId: number
+  ): Promise<LoanRecommend> {
+    const response = await this.instance.get(
+      `/loan/consultant/consulting?chatroomId=${chatroomId}&userId=${userId}`,
+      {
+        ...this.defaultConfig,
+      }
+    );
+    return response.data.result as LoanRecommend;
+  }
+
+  public static async getLoanDetail(
+    loanId: number,
+    userId: number
+  ): Promise<LoanDetail> {
+    const response = await this.instance.get(
+      `/loan/detail/${loanId}?userId=${userId}`,
+      {
+        ...this.defaultConfig,
+      }
+    );
+    return response.data.result as LoanDetail;
   }
 }

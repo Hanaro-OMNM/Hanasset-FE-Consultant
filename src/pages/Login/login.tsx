@@ -85,12 +85,12 @@ export default function ConsultantLogin() {
 
           {/* 회원가입 및 소셜 로그인 */}
           <div className="text-center mt-4">
-            <p className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500">
               아직 MapHana에 가입하지 않으셨나요?{' '}
               <div className=" text-hanaColor2 font-semibold hover:underline mt-2">
                 관리자에게 문의하세요 TEL : 010-2087-7881
               </div>
-            </p>
+            </div>
           </div>
         </div>
       </div>

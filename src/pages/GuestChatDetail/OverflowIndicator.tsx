@@ -20,7 +20,11 @@ const OverflowIndicator: React.FC<OverflowIndicatorProps> = ({
       style={{ left: `${(capital / totalPrice) * 100}%` }}
     >
       ⚠️ 앗 대출 한도를 넘었어요 &nbsp;
-      <span className="text-hanaRed font-fontBold">{shortage}천만 원</span>
+      <span className="text-hanaRed font-fontBold">
+        {shortage > 10
+          ? Math.round(shortage * 10) / 100 + '억 원'
+          : Math.round(shortage * 10) / 10 + '천만 원'}
+      </span>
     </div>
   );
 };

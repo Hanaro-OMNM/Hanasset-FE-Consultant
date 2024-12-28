@@ -1,8 +1,11 @@
 import { IoChevronBack } from 'react-icons/io5';
-import { dummyGuest } from '../assets/Dummy';
-import { dummyLoanDetail } from '../assets/Dummy';
+import { useRecoilValue } from 'recoil';
+import { useEffect, useState } from 'react';
 import CommonBackground from '../components/atoms/CommonBackground';
 import LoanProgressBar from '../components/atoms/LoanProgressBar';
+import { PlatformAPI } from '../platform/PlatformAPI';
+import { activeChatRoomState } from '../recoil/chat/atom';
+import { LoanDetail } from '../types/hanaAssetResponse.common';
 import InstructionCard from './LoanDetail/Components/InstructionCard';
 import LoanDetailAccentInfo from './LoanDetail/Components/LoanDetailAccentInfo';
 import LoanDetailCard from './LoanDetail/Components/LoanDetailCard';
@@ -11,9 +14,33 @@ import LoanDetailHint from './LoanDetail/Components/LoanDetailHint';
 
 interface LoanDetailProps {
   onHide: () => void;
+  loanId: number;
+  name?: string;
 }
 
-const LoanDetail: React.FC<LoanDetailProps> = ({ onHide }) => {
+const LoanDetailPage: React.FC<LoanDetailProps> = ({
+  onHide,
+  loanId,
+  name,
+}) => {
+  const [loanDetailInfo, setLoanDetailInfo] = useState<LoanDetail | null>(null);
+  const chatroomState = useRecoilValue(activeChatRoomState);
+
+  useEffect(() => {
+    const fetchLoanDetail = async () => {
+      try {
+        const loanResponse = await PlatformAPI.getLoanDetail(
+          loanId,
+          chatroomState?.chatroom.userId as number
+        );
+        setLoanDetailInfo(loanResponse);
+      } catch (error) {
+        console.error('Error fetching loan data:', error);
+      }
+    };
+    fetchLoanDetail();
+  }, [loanId]);
+
   return (
     <div className="animate-fadeInRight">
       <div className="w-[420px] backdrop-blur-[10px] h-screen overflow-y-auto bg-gray-50/90 scrollbar-hide">
@@ -31,25 +58,24 @@ const LoanDetail: React.FC<LoanDetailProps> = ({ onHide }) => {
             <div className="py-3 mx-4">
               {/* 대출 정보 카드 */}
               <LoanDetailCard
-                type={dummyLoanDetail.type}
-                name={dummyLoanDetail.name}
-                outline={dummyLoanDetail.outline}
+                type={loanDetailInfo ? loanDetailInfo.type : ''}
+                name={loanDetailInfo ? loanDetailInfo.name : ''}
+                outline={loanDetailInfo ? loanDetailInfo.outline : ''}
               />
-              {/* 대출 한 눈에 보여야 하는 정보 */}
               <LoanDetailAccentInfo
-                title={'oo님의 금리'}
-                content={`${dummyLoanDetail.rate}%`}
+                title={`${name}님의 금리`}
+                content={`${loanDetailInfo ? loanDetailInfo.rate : ''}%`}
               />
               <LoanDetailAccentInfo
                 title={'최대 한도'}
-                content={`${dummyLoanDetail.amount}억원`}
+                content={`${loanDetailInfo ? (loanDetailInfo.limitAmount > 10000 ? (loanDetailInfo.limitAmount / 10000).toLocaleString() + '억' : loanDetailInfo.limitAmount.toLocaleString() + '만') : ''} 원`}
               />
               <LoanDetailHint content="예상 금리와 한도예요. 서류 제출과정에서 신용 및 손님의 정보가 변동되면 금리와 한도가 변경될 수 있어요. 자세한 내용은 하나은행 홈페이지나 대출 상담을 통해 확인해주세요." />
               <LoanDetailAccentInfo
                 title={'DSR'}
-                content={`${dummyGuest.dsr}%`}
+                content={`${loanDetailInfo ? loanDetailInfo.dsr : 0}%`}
               />
-              <LoanProgressBar rate={dummyGuest.dsr} />
+              <LoanProgressBar rate={loanDetailInfo ? loanDetailInfo.dsr : 0} />
               {/* DSR 설명 */}
               <InstructionCard
                 title={'DSR이란?'}
@@ -59,34 +85,33 @@ const LoanDetail: React.FC<LoanDetailProps> = ({ onHide }) => {
               />
               {/* 대출 상세 정보 */}
               {/* 상품특징 */}
-              <LoanDetailDisclosure
-                title={'상품특징'}
-                content={dummyLoanDetail.detail}
-              />
+              {loanDetailInfo && loanDetailInfo.feature.length == 0 ? (
+                <></>
+              ) : (
+                <LoanDetailDisclosure
+                  title={'상품특징'}
+                  content={loanDetailInfo ? loanDetailInfo.feature : ''}
+                />
+              )}
               {/* 대출대상 */}
               <LoanDetailDisclosure
                 title={'대출대상'}
-                content={dummyLoanDetail.targetGuest}
+                content={loanDetailInfo ? loanDetailInfo.targetGuest : ''}
               />
               {/* 대상주택 */}
               <LoanDetailDisclosure
                 title={'대상주택'}
-                content={dummyLoanDetail.targetHouse}
+                content={loanDetailInfo ? loanDetailInfo.targetHouse : ''}
               />
               {/* 대출기간 */}
               <LoanDetailDisclosure
                 title={'대출기간'}
-                content={dummyLoanDetail.period}
+                content={loanDetailInfo ? loanDetailInfo.period : ''}
               />
               {/* 상환방식 */}
               <LoanDetailDisclosure
                 title={'상환방식'}
-                content={dummyLoanDetail.paybackMethod}
-              />
-              {/* 이자계산방법 */}
-              <LoanDetailDisclosure
-                title={'이자계산방법'}
-                content={dummyLoanDetail.rateCalculateMethod}
+                content={loanDetailInfo ? loanDetailInfo.paybackMethod : ''}
               />
               {/* 대출 받으러 가기 버튼 */}
             </div>
@@ -97,4 +122,4 @@ const LoanDetail: React.FC<LoanDetailProps> = ({ onHide }) => {
   );
 };
 
-export default LoanDetail;
+export default LoanDetailPage;

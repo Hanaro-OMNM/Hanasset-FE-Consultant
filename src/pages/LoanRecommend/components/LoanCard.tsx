@@ -52,7 +52,9 @@ const LoanLimit: React.FC<LoanLimitProps> = ({ isBest, limit }) => {
         !isBest && 'h-5 text-hanaBlack60 text-xs font-semibold'
       )}
     >
-      {`${limit}억 원`}
+      {limit > 10000
+        ? `${(limit / 10000).toLocaleString()}억 원`
+        : `${limit.toLocaleString()}만 원`}
     </h6>
   );
 };
@@ -60,10 +62,10 @@ const LoanLimit: React.FC<LoanLimitProps> = ({ isBest, limit }) => {
 // LoanNewDsr Components
 interface LoanNewDsrProps {
   isBest: boolean;
-  newDsr: number;
+  dsr: number;
 }
 
-const LoanNewDsr: React.FC<LoanNewDsrProps> = ({ isBest, newDsr }) => {
+const LoanDsr: React.FC<LoanNewDsrProps> = ({ isBest, dsr }) => {
   return (
     <h6
       className={clsx(
@@ -71,7 +73,7 @@ const LoanNewDsr: React.FC<LoanNewDsrProps> = ({ isBest, newDsr }) => {
         !isBest && 'h-5 text-hanaBlack60 text-xs font-semibold'
       )}
     >
-      {`DSR ${newDsr}%`}
+      {`DSR ${dsr}%`}
     </h6>
   );
 };
@@ -80,26 +82,30 @@ const LoanNewDsr: React.FC<LoanNewDsrProps> = ({ isBest, newDsr }) => {
 interface LoanCardProps {
   isBest: boolean;
   isShow: boolean;
+  loanId: number;
   name: string;
   rate: number;
   limit: number;
-  newDsr: number;
-  loanDetailUrl: string;
-  onLoanDetailButtonClick: () => void;
+  dsr: number;
+  onLoanDetailButtonClick: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const LoanCard: React.FC<LoanCardProps> = ({
   isBest,
   isShow,
+  loanId,
   name,
   rate,
   limit,
-  newDsr,
+  dsr,
   onLoanDetailButtonClick,
 }) => {
   return (
     <div className={clsx(!isShow && 'hidden')}>
-      <button className="mb-3 w-full" onClick={onLoanDetailButtonClick}>
+      <button
+        className="mb-3 w-full"
+        onClick={() => onLoanDetailButtonClick(loanId)}
+      >
         <div
           className={clsx(
             'p-4 rounded-lg shadow transition-transform duration-100',
@@ -112,7 +118,7 @@ const LoanCard: React.FC<LoanCardProps> = ({
             <div className="mt-1 pt-1 flex justify-between">
               <LoanRate isBest={isBest} rate={rate} />
               <LoanLimit isBest={isBest} limit={limit} />
-              <LoanNewDsr isBest={isBest} newDsr={newDsr} />
+              <LoanDsr isBest={isBest} dsr={dsr} />
             </div>
           </div>
         </div>

@@ -29,6 +29,19 @@ export class PlatformAPI {
       headers: { 'Content-Type': 'application/json' },
     });
 
+    instance.interceptors.request.use(
+      (request) => {
+        const accessToken = localStorage.getItem('accessToken'); // 로컬스토리지에서 액세스 토큰 가져오기
+        if (accessToken) {
+          request.headers.authorization = `Bearer ${accessToken}`; // Authorization 헤더에 Bearer 토큰 추가
+        }
+        return request; // 수정된 요청 반환
+      },
+      (error) => {
+        return Promise.reject(error); // 요청 에러 처리
+      }
+    );
+
     instance.interceptors.response.use(
       (response) => {
         const accessToken = localStorage.getItem('accessToken');

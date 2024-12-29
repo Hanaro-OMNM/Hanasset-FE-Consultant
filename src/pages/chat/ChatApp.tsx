@@ -10,8 +10,8 @@ import ChatMessage from './ChatMessage';
 
 type ChatMessageType = {
   id: number;
-  user: 'guest' | 'consultant';
-  subject: 'sender' | 'responser';
+  user: string;
+  subject: string;
   message: string;
   time: string;
 };
@@ -21,8 +21,7 @@ const ChatApp: React.FC = () => {
   const [inputMessage, setInputMessage] = useState<string>('');
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
-  const [activeChatRoom, setActiveChatRoom] =
-    useRecoilState(activeChatRoomState);
+  const [activeChatRoom] = useRecoilState(activeChatRoomState);
   const [chatroomId, setChatroomId] = useState<string | null>(
     activeChatRoom?.chatroom.chatroomId ?? null
   );

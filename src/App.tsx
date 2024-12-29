@@ -27,7 +27,6 @@ function AppContent() {
       <RecoilRoot>
         <Routes>
           <Route path="/" element={<Consultant />} />
-          {/* <Route path="/live-chat" element={<ChatApp accessor="guest" />} /> */}
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </RecoilRoot>

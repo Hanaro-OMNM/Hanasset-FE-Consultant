@@ -200,7 +200,9 @@ export default function GuestWaiting() {
         <button
           onClick={() => {
             localStorage.removeItem('accessToken');
-            setIsLogin(false);
+            if (isLogin) {
+              setIsLogin(false);
+            }
             navigate('/login');
           }}
           className="rounded bg-red-500 text-white py-1 px-2 hover:bg-red-600"

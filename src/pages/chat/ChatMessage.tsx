@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
 type ChatMessageProps = {
-  subject: 'sender' | 'responser';
+  subject: string;
   message: string;
   lastMessageTime?: string | null;
   responserName?: string;

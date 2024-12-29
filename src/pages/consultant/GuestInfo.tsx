@@ -19,7 +19,7 @@ export default function GuestInfoPage() {
   const [loanRecommendInfos, setLoanRecommendInfos] = useState<
     LoanRecommendInfo[] | []
   >([]);
-  const [realEsetateId, setRealEstateId] = useState(0);
+  const [realEstateId, setRealEstateId] = useState(0);
   const [loanId, setLoanId] = useState<number | null>(null);
   const [realEstateInfos, setRealEstateInfos] = useState<RealEstateInfo[] | []>(
     []
@@ -57,7 +57,7 @@ export default function GuestInfoPage() {
     if (realEstateInfos.length < 1) {
       fetchLoanRecommend();
     }
-  }, [realEstateInfos]);
+  }, [realEstateInfos, chatroomState]);
 
   return (
     <div>
@@ -138,13 +138,13 @@ export default function GuestInfoPage() {
                   <FixedExpectation
                     capital={guestInfo ? guestInfo.capital / 1000 : 0}
                     totalPrice={
-                      realEstateInfos[realEsetateId]
-                        ? realEstateInfos[realEsetateId].deposit / 1000_0000
+                      realEstateInfos[realEstateId]
+                        ? realEstateInfos[realEstateId].deposit / 1000_0000
                         : 0
                     }
                     maxLoan={
-                      realEstateInfos[realEsetateId]
-                        ? (realEstateInfos[realEsetateId].deposit / 1000_0000) *
+                      realEstateInfos[realEstateId]
+                        ? (realEstateInfos[realEstateId].deposit / 1000_0000) *
                           0.8
                         : 0
                     }
@@ -152,12 +152,12 @@ export default function GuestInfoPage() {
                   <LoanRecommendTab
                     hanaLoanList={
                       loanRecommendInfos.length > 0
-                        ? loanRecommendInfos[realEsetateId].hanaLoans
+                        ? loanRecommendInfos[realEstateId].hanaLoans
                         : []
                     }
                     beotimmogLoanList={
                       loanRecommendInfos.length > 0
-                        ? loanRecommendInfos[realEsetateId].beotimmokLoans
+                        ? loanRecommendInfos[realEstateId].beotimmokLoans
                         : []
                     }
                     onLoanDetailButtonClick={setLoanId}
